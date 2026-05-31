@@ -22,7 +22,7 @@ public class TimetableTest {
         //Проверить, что за понедельник вернулось одно занятие
         List<TrainingSession> mondaySessions = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
         assertEquals(1, mondaySessions.size());
-        assertEquals(singleTrainingSession, mondaySessions.get(0));
+        assertEquals(singleTrainingSession, mondaySessions.getFirst());
 
         //Проверить, что за вторник не вернулось занятий
         List<TrainingSession> tuesdaySessions = timetable.getTrainingSessionsForDay(DayOfWeek.TUESDAY);
@@ -56,7 +56,7 @@ public class TimetableTest {
         // Проверить, что за понедельник вернулось одно занятие
         List<TrainingSession> mondaySessions = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
         assertEquals(1, mondaySessions.size());
-        assertEquals(mondayChildTrainingSession, mondaySessions.get(0));
+        assertEquals(mondayChildTrainingSession, mondaySessions.getFirst());
 
         // Проверить, что за четверг вернулось два занятия в правильном порядке: сначала в 13:00, потом в 20:00
         // сначала в 13:00, потом в 20:00
@@ -89,7 +89,7 @@ public class TimetableTest {
         List<TrainingSession> sessionsAt13 = timetable.getTrainingSessionsForDayAndTime(
                 DayOfWeek.MONDAY, new TimeOfDay(13, 0));
         assertEquals(1, sessionsAt13.size());
-        assertEquals(singleTrainingSession, sessionsAt13.get(0));
+        assertEquals(singleTrainingSession, sessionsAt13.getFirst());
 
         //Проверить, что за понедельник в 14:00 не вернулось занятий
         List<TrainingSession> sessionsAt14 = timetable.getTrainingSessionsForDayAndTime(
@@ -110,8 +110,8 @@ public class TimetableTest {
         List<CounterOfTrainings> result = timetable.getCountByCoaches();
 
         assertEquals(1, result.size());
-        assertEquals(3, result.get(0).getCount());
-        assertEquals(coach, result.get(0).getCoach());
+        assertEquals(3, result.getFirst().getCount());
+        assertEquals(coach, result.getFirst().getCoach());
     }
 
     @Test
@@ -162,5 +162,30 @@ public class TimetableTest {
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testGetTrainingSessionsOnTheSameDayAndTime() {
+        Timetable timetable = new Timetable();
+
+        Group group1 = new Group("Акробатика для взрослых", Age.ADULT, 90);
+        Group group2 = new Group("Акробатика для детей", Age.CHILD, 60);
+        Coach coach1 = new Coach("Карпенко", "Анатолий", "Иванович");
+        Coach coach2 = new Coach("Васильев", "Николай", "Сергеевич");
+
+        TrainingSession trainingSession1 = new TrainingSession(group1, coach1,
+                DayOfWeek.MONDAY, new TimeOfDay(13, 0));
+        TrainingSession trainingSession2 = new TrainingSession(group2, coach2,
+                DayOfWeek.MONDAY, new TimeOfDay(13, 0));
+
+        timetable.addNewTrainingSession(trainingSession1);
+        timetable.addNewTrainingSession(trainingSession2);
+
+        //Проверить, что за понедельник в 13:00 вернулось два занятия
+        List<TrainingSession> sessionsAt13 = timetable.getTrainingSessionsForDayAndTime(
+                DayOfWeek.MONDAY, new TimeOfDay(13, 0));
+        assertEquals(2, sessionsAt13.size());
+        assertTrue(sessionsAt13.contains(trainingSession1));
+        assertTrue(sessionsAt13.contains(trainingSession2));
     }
 }

@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Timetable {
 
-    private HashMap<DayOfWeek, TreeMap<TimeOfDay, List<TrainingSession>>> timetable = new HashMap<>();
+    private final Map<DayOfWeek, TreeMap<TimeOfDay, List<TrainingSession>>> timetable = new HashMap<>();
 
     public void addNewTrainingSession(TrainingSession trainingSession) {
         DayOfWeek trainingDay = trainingSession.getDayOfWeek();
@@ -35,8 +35,8 @@ public class Timetable {
             return new ArrayList<>();
         } else {
             result = new ArrayList<>();
-            for (TimeOfDay t : treeMapForDay.keySet()) {
-                result.addAll(treeMapForDay.get(t));
+            for (List<TrainingSession> sessions : treeMapForDay.values()) {
+                result.addAll(sessions);
             }
             return result;
         }
@@ -67,7 +67,10 @@ public class Timetable {
             result.add(new CounterOfTrainings(entry.getKey(), entry.getValue()));
         }
 
-        result.sort((c1, c2) -> c2.getCount() - c1.getCount());
+        result.sort(
+                Comparator.comparingInt(CounterOfTrainings::getCount)
+                        .reversed()
+        );
 
         return result;
     }
